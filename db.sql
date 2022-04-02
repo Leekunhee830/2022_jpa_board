@@ -69,5 +69,8 @@ title = '제목3',
 `body` = '내용3',
 `user_id` = '3';
 
+#회원테이블의 email 칼럼을 UNIQUE로 지정
+ALTER TABLE `user` ADD UNIQUE INDEX (email);
+
 SELECT * FROM `user`;
 SELECT * FROM `article`;
