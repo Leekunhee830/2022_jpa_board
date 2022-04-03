@@ -7,7 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/usr/user")
@@ -56,8 +60,7 @@ public class UserController {
 
     @RequestMapping("doLogin")
     @ResponseBody
-    public String doLogin(String email,String password){
-
+    public String doLogin(String email, String password, HttpServletRequest req, HttpServletResponse resp){
         if (email == null || email.trim().length() == 0) {
             return "이메일을 입력해주세요.";
         }
@@ -68,14 +71,49 @@ public class UserController {
         }
         password = password.trim();
 
-        User user = userRepository.findByEmail(email).get();
-        if(user==null){
+        //User user = userRepository.findByEmail(email).orElse(null); 방법1
+        Optional<User> user=userRepository.findByEmail(email); //방법2
+
+        if(user.isEmpty()){
             return "일치하는 회원이 존재하지 않습니다.";
         }
-        if(user.getPassword().equals(password)==false){
+        if(user.get().getPassword().equals(password)==false){
             return "비밀번호가 일치하지 않습니다.";
         }
 
-        return "%s님 환영합니다.".formatted(user.getName());
+        Cookie cookie=new Cookie("loginedUserId",user.get().getId()+"");
+        resp.addCookie(cookie);
+
+
+        return "%s님 환영합니다.".formatted(user.get().getName());
+    }
+
+    @RequestMapping("me")
+    @ResponseBody
+    public User showMe(HttpServletRequest req){
+        boolean isLogined =false;
+        long loginedUserId=0;
+        Cookie[] cookies=req.getCookies();
+
+        if(cookies!=null){
+            for(Cookie cookie:cookies){
+                if(cookie.getName().equals("loginedUserId")){
+                    isLogined=true;
+                    loginedUserId = Long.parseLong(cookie.getValue());
+                }
+            }
+        }
+
+        if(isLogined==false){
+            return null;
+        }
+
+        Optional<User> user=userRepository.findById(loginedUserId);
+
+        if(user.isEmpty()){
+            return null;
+        }
+
+        return user.get();
     }
 }
