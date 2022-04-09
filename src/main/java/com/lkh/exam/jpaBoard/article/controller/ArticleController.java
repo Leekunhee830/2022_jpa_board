@@ -31,10 +31,10 @@ public class ArticleController {
     }
 
     @RequestMapping("detail")
-    @ResponseBody
-    public Article showDetail(long id) {
+    public String showDetail(Model model,long id) {
         Optional<Article> article = articleRepository.findById(id);
-        return article.get();
+        model.addAttribute(article.get());
+        return "usr/article/detail";
     }
 
     @RequestMapping("doDelete")
@@ -95,6 +95,12 @@ public class ArticleController {
         article.setUser(user);
         articleRepository.save(article);
 
-        return "%d번 게시물이 생성되었습니다.".formatted(article.getId());
+        return """
+                <script>
+                alert('%d번 게시물이 생성되었습니다.');
+                location.replace('list');
+                </script>
+                """
+                .formatted(article.getId());
     }
 }
