@@ -22,8 +22,14 @@ public class ArticleController {
     private UserRepository userRepository;
 
     @RequestMapping("list")
+    public String showList() {
+        return "usr/article/list";
+    }
+
+
+    @RequestMapping("list2")
     @ResponseBody
-    public List<Article> showList() {
+    public List<Article> showList2() {
         return articleRepository.findAll();
     }
 
