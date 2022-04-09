@@ -6,6 +6,7 @@ import com.lkh.exam.jpaBoard.user.dao.UserRepository;
 import com.lkh.exam.jpaBoard.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -22,15 +23,11 @@ public class ArticleController {
     private UserRepository userRepository;
 
     @RequestMapping("list")
-    public String showList() {
+    public String showList(Model model) {
+        List<Article> articles=articleRepository.findAll();
+        model.addAttribute("articles",articles);
+
         return "usr/article/list";
-    }
-
-
-    @RequestMapping("list2")
-    @ResponseBody
-    public List<Article> showList2() {
-        return articleRepository.findAll();
     }
 
     @RequestMapping("detail")
@@ -67,9 +64,14 @@ public class ArticleController {
         return article;
     }
 
+    @RequestMapping("write")
+    public String showWrite() {
+        return "usr/article/write";
+    }
+
     @RequestMapping("doWrite")
     @ResponseBody
-    public String doWrite(long id, String title, String body) {
+    public String doWrite(String title, String body) {
 
         if (title == null || title.trim().length() == 0) {
             return "제목을 입력해주세요.";
