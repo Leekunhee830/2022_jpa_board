@@ -42,9 +42,19 @@ public class ArticleController {
     public String doDelete(long id) {
         if (articleRepository.existsById(id)) {
             articleRepository.deleteById(id);
-            return "%d번째 게시물이 삭제되었습니다.".formatted(id);
+            return """
+                <script>
+                alert('%d번 게시물이 삭제되었습니다.');
+                location.replace('list');
+                </script>
+                """.formatted(id);
         }
-        return "%d번째 게시물이 존재하지 않습니다.".formatted(id);
+        return """
+                <script>
+                alert('%d번 게시물이 존재하지 않습니다.');
+                location.replace('list');
+                </script>
+                """.formatted(id);
     }
 
     @RequestMapping("modify")
@@ -71,10 +81,10 @@ public class ArticleController {
         return """
                 <script>
                 alert('%d번 게시물이 수정되었습니다.');
-                location.replace('list');
+                location.replace('detail?id=%d');
                 </script>
                 """
-                .formatted(article.getId());
+                .formatted(article.getId(),article.getId());
     }
 
     @RequestMapping("write")
