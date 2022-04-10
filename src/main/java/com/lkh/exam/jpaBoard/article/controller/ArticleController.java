@@ -25,14 +25,14 @@ public class ArticleController {
 
     @RequestMapping("list")
     public String showList(Model model) {
-        List<Article> articles=articleRepository.findAll();
-        model.addAttribute("articles",articles);
+        List<Article> articles = articleRepository.findAll();
+        model.addAttribute("articles", articles);
 
         return "usr/article/list";
     }
 
     @RequestMapping("detail")
-    public String showDetail(Model model,long id) {
+    public String showDetail(Model model, long id) {
         Optional<Article> article = articleRepository.findById(id);
         model.addAttribute(article.get());
         return "usr/article/detail";
@@ -40,15 +40,42 @@ public class ArticleController {
 
     @RequestMapping("doDelete")
     @ResponseBody
-    public String doDelete(long id) {
+    public String doDelete(HttpSession session, long id) {
+        boolean isLogined = false;
+        long loginedUserId = 0;
+
+        if (session.getAttribute("loginedUserId") != null) {
+            isLogined = true;
+            loginedUserId = (long) session.getAttribute("loginedUserId");
+        }
+
+        if (isLogined == false) {
+            return """
+                    <script>
+                    alert('로그인 후 이용해주세요.');
+                    history.back();
+                    </script>
+                    """;
+        }
+        Article article = articleRepository.findById(id).get();
+
+        if (article.getUser().getId() != loginedUserId) {
+            return """
+                    <script>
+                    alert('권한이 없습니다.');
+                    history.back();
+                    </script>
+                    """.formatted(id);
+        }
+
         if (articleRepository.existsById(id)) {
             articleRepository.deleteById(id);
             return """
-                <script>
-                alert('%d번 게시물이 삭제되었습니다.');
-                location.replace('list');
-                </script>
-                """.formatted(id);
+                    <script>
+                    alert('%d번 게시물이 삭제되었습니다.');
+                    location.replace('list');
+                    </script>
+                    """.formatted(id);
         }
         return """
                 <script>
@@ -59,16 +86,66 @@ public class ArticleController {
     }
 
     @RequestMapping("modify")
-    public String showModify(Model model,long id) {
-        Optional<Article> article = articleRepository.findById(id);
-        model.addAttribute("article",article.get());
+    public String showModify(HttpSession session, Model model, long id) {
+        boolean isLogined = false;
+        long loginedUserId = 0;
+
+        if (session.getAttribute("loginedUserId") != null) {
+            isLogined = true;
+            loginedUserId = (long) session.getAttribute("loginedUserId");
+        }
+
+        if (isLogined == false) {
+            model.addAttribute("msg", "로그인 후 이용해주세요.");
+            model.addAttribute("historyBack", true);
+            return "common/js";
+        }
+
+        Optional<Article> opArticle = articleRepository.findById(id);
+        Article article=opArticle.get();
+
+
+        if(article.getUser().getId()!=loginedUserId){
+            model.addAttribute("msg","권한이 없습니다.");
+            model.addAttribute("historyBack",true);
+            return "common/js";
+        }
+        model.addAttribute("article", article);
+
         return "usr/article/modify";
     }
 
     @RequestMapping("doModify")
     @ResponseBody
-    public String doModify(long id, String title, String body) {
+    public String doModify(long id, String title, String body, HttpSession session) {
+        boolean isLogined = false;
+        long loginedUserId = 0;
+
+        if (session.getAttribute("loginedUserId") != null) {
+            isLogined = true;
+            loginedUserId = (long) session.getAttribute("loginedUserId");
+        }
+
+        if (isLogined == false) {
+            return """
+                    <script>
+                    alert('로그인 후 이용해주세요.');
+                    history.back();
+                    </script>
+                    """;
+        }
+
         Article article = articleRepository.findById(id).get();
+
+        if (article.getUser().getId() != loginedUserId) {
+            return """
+                    <script>
+                    alert('권한이 없습니다.');
+                    history.back();
+                    </script>
+                    """;
+        }
+
         if (title != null) {
             article.setTitle(title);
         }
@@ -85,22 +162,22 @@ public class ArticleController {
                 location.replace('detail?id=%d');
                 </script>
                 """
-                .formatted(article.getId(),article.getId());
+                .formatted(article.getId(), article.getId());
     }
 
     @RequestMapping("write")
-    public String showWrite(HttpSession session,Model model) {
-        boolean isLogined=false;
-        long loginedUserId=0;
+    public String showWrite(HttpSession session, Model model) {
+        boolean isLogined = false;
+        long loginedUserId = 0;
 
-        if(session.getAttribute("loginedUserId")!=null){
-            isLogined=true;
-            loginedUserId=(long)session.getAttribute("loginedUserId");
+        if (session.getAttribute("loginedUserId") != null) {
+            isLogined = true;
+            loginedUserId = (long) session.getAttribute("loginedUserId");
         }
 
-        if(isLogined==false){
-            model.addAttribute("msg","로그인 후 이용해주세요.");
-            model.addAttribute("historyBack",true);
+        if (isLogined == false) {
+            model.addAttribute("msg", "로그인 후 이용해주세요.");
+            model.addAttribute("historyBack", true);
             return "common/js";
         }
         return "usr/article/write";
@@ -108,22 +185,22 @@ public class ArticleController {
 
     @RequestMapping("doWrite")
     @ResponseBody
-    public String doWrite(HttpSession session,String title, String body) {
-        boolean isLogined=false;
-        long loginedUserId=0;
+    public String doWrite(HttpSession session, String title, String body) {
+        boolean isLogined = false;
+        long loginedUserId = 0;
 
-        if(session.getAttribute("loginedUserId")!=null){
-            isLogined=true;
-            loginedUserId=(long)session.getAttribute("loginedUserId");
+        if (session.getAttribute("loginedUserId") != null) {
+            isLogined = true;
+            loginedUserId = (long) session.getAttribute("loginedUserId");
         }
 
-        if(isLogined==false){
+        if (isLogined == false) {
             return """
-                <script>
-                alert('로그인 후 이용해주세요.');
-                history.back();
-                </script>
-                """;
+                    <script>
+                    alert('로그인 후 이용해주세요.');
+                    history.back();
+                    </script>
+                    """;
         }
 
         if (title == null || title.trim().length() == 0) {
@@ -144,7 +221,7 @@ public class ArticleController {
         article.setTitle(title);
         article.setBody(body);
 
-        User user=userRepository.findById(loginedUserId).get();
+        User user = userRepository.findById(loginedUserId).get();
         article.setUser(user);
         articleRepository.save(article);
 
