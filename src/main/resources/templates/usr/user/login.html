@@ -6,25 +6,26 @@
 </head>
 
 <main layout:fragment="main" class="mt-[20px]">
-    <h1 class="container mx-auto font-bold text-[1.3rem]">로그인</h1>
+    <h1 class="container mx-auto font-bold text-[1.3rem] px-[10px]">로그인</h1>
 
-    <form action="doLogin" method="POST" class="container mx-auto">
+    <form action="doLogin" method="POST" class="container mx-auto px-[10px]">
         <div class="form-control">
             <label class="label">
                 <span class="label-text">이메일</span>
             </label>
-            <input name="email" type="email" placeholder="이메일을 입력해주세요." class="input input-bordered w-full max-w-xs" maxlength="50">
+            <input required name="email" type="email" placeholder="이메일을 입력해주세요." class="input input-bordered w-full max-w-xs" maxlength="50">
         </div>
 
         <div class="form-control">
             <label class="label">
                 <span class="label-text">비밀번호</span>
             </label>
-            <input name="password" type="password" placeholder="비밀번호를 입력해주세요." class="input input-bordered w-full max-w-xs" maxlength="50">
+            <input required name="password" type="password" placeholder="비밀번호를 입력해주세요." class="input input-bordered w-full max-w-xs" maxlength="50">
         </div>
 
         <div class="mt-[20px]">
-            <input type="submit" value="로그인" class="btn btn-primary">
+            <input type="submit" value="로그인" class="btn btn-primary btn-sm">
+            <button class="btn btn-sm" onclick="history.back();">취소</button>
         </div>
     </form>
 </main>

@@ -23,8 +23,6 @@ public class UserController {
 
     @RequestMapping("join")
     public String showJoin() {
-
-
         return "usr/user/join";
     }
 
@@ -33,23 +31,43 @@ public class UserController {
     public String doJoin(String name,String email,String password){
 
         if (name == null || name.trim().length() == 0) {
-            return "이름을 입력해주세요.";
+            return """
+                    <script>
+                    alert('이름을 입력해주세요.');
+                    history.back();
+                    </script>
+                    """;
         }
         name = name.trim();
 
         if (email == null || email.trim().length() == 0) {
-            return "이메일을 입력해주세요.";
+            return """
+                    <script>
+                    alert('이메일을 입력해주세요.');
+                    history.back();
+                    </script>
+                    """;
         }
         email = email.trim();
 
         boolean existsByEmail = userRepository.existsByEmail(email);
 
         if ( existsByEmail ) {
-            return "입력하신 이메일(%s)은 이미 사용중입니다.".formatted(email);
+            return """
+                    <script>
+                    alert('입력하신 이메일(%s)은 이미 사용중입니다.');
+                    history.back();
+                    </script>
+                    """.formatted(email);
         }
 
         if (password == null || password.trim().length() == 0) {
-            return "비밀번호를 입력해주세요.";
+            return """
+                    <script>
+                    alert('비밀번호를 입력해주세요.');
+                    history.back();
+                    </script>
+                    """;
         }
         password = password.trim();
 
@@ -63,7 +81,12 @@ public class UserController {
 
         userRepository.save(user);
 
-        return "%d번 회원이 생성되었습니다.".formatted(user.getId());
+        return """
+                <script>
+                alert('%d번 회원이 생성되었습니다.');
+                location.replace('/usr/article/list');
+                </script>
+                """.formatted(user.getId());
     }
 
     @RequestMapping("login")
